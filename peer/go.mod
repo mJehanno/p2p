@@ -1,6 +1,6 @@
-module github.com/mjehanno/p2p/tracker
+module p2p/peer
 
-go 1.21.0
+go 1.21.3
 
 require (
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect

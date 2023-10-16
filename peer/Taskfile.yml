@@ -1,0 +1,13 @@
+version: '3'
+
+tasks:
+  run-1:
+    cmds:
+    - go run .
+    env:
+      PORT: 7000
+  run-2:
+    cmds:
+    - go run .
+    env:
+      PORT: 6000
