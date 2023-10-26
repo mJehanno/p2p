@@ -1,0 +1,9 @@
+version: '3'
+
+tasks:
+  build:
+    cmds:
+    - docker build --tag tracker .
+  run:
+    cmds:
+    - docker run -it --name tracker --network poc-p2p tracker

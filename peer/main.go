@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"net"
-	"os"
 	"strings"
 
 	"github.com/charmbracelet/log"
@@ -11,9 +10,10 @@ import (
 
 func main() {
 	go func() {
-		l, err := net.Listen("tcp", "127.0.0.1:"+os.Getenv("PORT"))
+		l, err := net.Listen("tcp", "127.0.0.1:9500")
 		handleErr("fatal", "can't start tcp server", err)
 
+		log.Info("Server listening on port 9500")
 		for {
 			c, err := l.Accept()
 			handleErr("error", "can't accept connection", err)
@@ -21,14 +21,15 @@ func main() {
 			handleErr("error", "can't write to peer", err)
 		}
 	}()
-	con, err := net.Dial("tcp", "127.0.0.1:8000")
+	con, err := net.Dial("tcp", "tracker:8000")
 	handleErr("fatal", "can't reach tracker node", err)
-
 	var peerList string
-	for {
+
+	for len(peerList) <= 0 {
 		_, err = con.Read([]byte(peerList))
 		handleErr("fatal", "can't read peerlist from tracker", err)
 		if len(peerList) > 0 {
+			log.Info("received peer list")
 			break
 		}
 	}

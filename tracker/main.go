@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net"
+	"regexp"
 
 	"github.com/charmbracelet/log"
 )
@@ -10,20 +11,23 @@ import (
 func main() {
 	l, err := net.Listen("tcp", ":8000")
 	handleErr("fatal", "can't start tcp server", err)
-	peers := []net.Conn{}
+	peers := map[string]net.Conn{}
 
-	peerlist := ""
 	for {
 		con, err := l.Accept()
 		handleErr("error", "can't accept connection", err)
 
-		peers = append(peers, con)
+		peers[con.RemoteAddr().String()] = con
+		peerlist := ""
 		for _, c := range peers {
-			peerlist += c.RemoteAddr().String() + "|"
+			reg := regexp.MustCompile("/:*$/")
+			addr := reg.ReplaceAllString(c.RemoteAddr().String(), ":9500")
+			peerlist += addr + "|"
 		}
 		log.Infof("current value of peerlist : %s", peerlist)
 		_, err = con.Write([]byte(peerlist))
 		handleErr("error", "can't write to peer", err)
+		defer con.Close()
 	}
 }
 

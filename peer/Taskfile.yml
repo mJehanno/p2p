@@ -1,13 +1,13 @@
 version: '3'
 
 tasks:
+  build:
+    cmds:
+    - docker build --tag peer .
   run-1:
     cmds:
-    - go run .
-    env:
-      PORT: 7000
+    - docker run -it --name peer-1 --network poc-p2p peer
   run-2:
     cmds:
-    - go run .
-    env:
-      PORT: 6000
+    - docker run -it --name peer-2 --network poc-p2p peer
+
