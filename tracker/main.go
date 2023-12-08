@@ -17,18 +17,24 @@ func main() {
 		con, err := l.Accept()
 		handleErr("error", "can't accept connection", err)
 
-		peers[con.RemoteAddr().String()] = con
-		peerlist := ""
-		for _, c := range peers {
-			reg := regexp.MustCompile("/:*$/")
-			addr := reg.ReplaceAllString(c.RemoteAddr().String(), ":9500")
-			peerlist += addr + "|"
-		}
-		log.Infof("current value of peerlist : %s", peerlist)
-		_, err = con.Write([]byte(peerlist))
-		handleErr("error", "can't write to peer", err)
-		defer con.Close()
+		go handleConnection(con, peers)
 	}
+}
+
+func handleConnection(con net.Conn, peers map[string]net.Conn) {
+	peers[con.RemoteAddr().String()] = con
+	peerlist := ""
+	_, err := con.Write([]byte(con.RemoteAddr().String()))
+	handleErr("error", "can't write to peer", err)
+	for _, c := range peers {
+		reg := regexp.MustCompile("/:*$/")
+		addr := reg.ReplaceAllString(c.RemoteAddr().String(), ":9500")
+		peerlist += addr + "|"
+	}
+	log.Infof("current value of peerlist : %s", peerlist)
+	_, err = con.Write([]byte(peerlist))
+	handleErr("error", "can't write to peer", err)
+
 }
 
 func handleErr(level, msg string, err error) {
